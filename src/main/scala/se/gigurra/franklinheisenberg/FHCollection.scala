@@ -1,7 +1,6 @@
 package se.gigurra.franklinheisenberg
 
 import se.gigurra.franklin._
-import se.gigurra.franklinheisenberg.FHCollection.SelectStatement
 import se.gigurra.heisenberg._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,8 +9,7 @@ import scala.language.implicitConversions
 import scala.reflect.runtime.universe._
 
 case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaType <: Schema[ObjectType]](franklin: Collection,
-                                                                                                          schema: SchemaType,
-                                                                                                          defaultValue: () => ObjectType) {
+                                                                                                          schema: SchemaType) {
   import FHCollection._
 
   val tag = weakTypeTag[ObjectType]
@@ -43,12 +41,16 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
       franklin.update(selector, MapProducer.produce(entity), upsert, expectPrevVersion)
     }
 
-    def append(fGetFieldData: SchemaType => (String, Any)): Future[Unit] = {
+    def append(fGetFieldData: SchemaType => (String, Any), defaultValue: () => ObjectType): Future[Unit] = {
       val data = fGetFieldData(schema).asInstanceOf[(String, Seq[Any])]
       franklin.append(selector, () => MapProducer.produce(defaultValue()), Seq(data))
     }
 
     def delete(expectVersion: Long = -1L): Future[Unit] = franklin.deleteItem(selector, expectVersion)
+
+    def findOrCreate(ctor: () => ObjectType): Future[Versioned[ObjectType]] = {
+      franklin.loadOrCreate(selector, () => MapProducer.produce(ctor())).map(parse)
+    }
   }
 
   def where_raw(selector: Map[String, Any]): where_impl = new where_impl(selector)
@@ -80,9 +82,9 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
   private def parse(data: Map[String, Any], version: Long): Versioned[ObjectType] = Versioned(MapParser.parse(data), version)
 }
 
-case class Versioned[T <: Parsed[T] : WeakTypeTag](t: T, version: Long)
+case class Versioned[T <: Parsed[T] : WeakTypeTag](data: T, version: Long)
 object Versioned {
-  implicit def versioned2t[T <: Parsed[T] : WeakTypeTag](vt: Versioned[T]): T = vt.t
+  implicit def versioned2t[T <: Parsed[T] : WeakTypeTag](vt: Versioned[T]): T = vt.data
 }
 
 object FHCollection {

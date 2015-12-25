@@ -13,10 +13,9 @@ object FranklinHeisenberg {
   private def buildStore(franklinStore: Store): FHStore = new FHStore {
 
     override def getOrCreate[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaType <: Schema[ObjectType]](collectionName: String,
-                                                                                                               schema: SchemaType,
-                                                                                                               defaultValue: () => ObjectType): FHCollection[ObjectType, SchemaType] = {
+                                                                                                               schema: SchemaType): FHCollection[ObjectType, SchemaType] = {
       val franklinCollection = franklinStore.getOrCreate(collectionName)
-      new FHCollection(franklinCollection, schema, defaultValue)
+      new FHCollection(franklinCollection, schema)
     }
 
     override def close(): Unit = franklinStore.close()

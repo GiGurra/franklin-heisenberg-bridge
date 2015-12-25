@@ -50,7 +50,7 @@ class FHCollectionTest
   val provider: FHStore = FranklinHeisenberg.loadInMemory()
   //val provider: FHStore = FranklinHeisenberg.loadMongo()
 
-  val collection = provider.getOrCreate("test_fhcollection", OuterType, () => OuterType.apply("SomeName", Seq.empty))
+  val collection = provider.getOrCreate[OuterType, OuterType.type]("test_fhcollection", OuterType)
 
   override def beforeEach(): Unit = {
     collection.wipeItems().yesImSure().await()
@@ -106,7 +106,7 @@ class FHCollectionTest
       storedItems should contain(Versioned(b1, version = 1L))
       storedItems.size shouldBe 2
 
-      collection.where(_.name --> "a").find.await().head.t shouldBe a1
+      collection.where(_.name --> "a").find.await().head.data shouldBe a1
       collection.where(_.partyMembers --> "y").find.await().contains(Versioned(a1, 1L)) shouldBe true
       collection.where(_.partyMembers --> "å").find.await().contains(Versioned(b1, 1L)) shouldBe true
 
@@ -131,7 +131,7 @@ class FHCollectionTest
 
 
       collection.where().size.await() shouldBe 2
-      collection.where(_.name --> "a").find.await().head.t shouldBe a2
+      collection.where(_.name --> "a").find.await().head.data shouldBe a2
 
     }
 
@@ -140,14 +140,35 @@ class FHCollectionTest
       collection.createUniqueIndex(_.name).await()
 
       val a = OuterType("a", Seq("bob"))
-      collection.create(a).await()
+      val b = OuterType("b", Seq("bob"))
 
-      collection.where(a).append(_.partyMembers --> Seq("j", "m", "r")).await()
-      collection.where(_.name --> a.name).find.await().head.t.partyMembers should contain allOf ("j", "m", "r", "bob")
+      collection.create(a).await()
+      collection.where(a).append(_.partyMembers --> Seq("j", "m", "r"), defaultValue = () => a).await()
+      collection.where(b).append(_.partyMembers --> Seq("j", "m", "r"), defaultValue = () => b).await()
+      collection.where(_.name --> a.name).find.await().head.data.partyMembers should contain allOf ("j", "m", "r", "bob")
+      collection.where(_.name --> b.name).find.await().head.data.partyMembers should contain allOf ("j", "m", "r", "bob")
 
     }
 
-    "LoadOrCreate" in {
+    "findOrCreate" in {
+
+      collection.createUniqueIndex(_.name).await()
+
+      val a1 = OuterType("a1", Seq("1"))
+      val a1b = OuterType("a1", Seq("1b"))
+
+      val a2 = OuterType("a2", Seq("2"))
+
+      collection.where(a1).findOrCreate(ctor = () => a1).await()
+      collection.where(a1).findOrCreate(ctor = () => a1b).await()
+      collection.where(a1).size.await() shouldBe 1
+      collection.where().size.await() shouldBe 1
+      collection.where(a1).find.await().head.data shouldBe a1
+
+      collection.where(a2).findOrCreate(ctor = () => a2).await()
+      collection.where(a2).size.await() shouldBe 1
+      collection.where(a2).find.await().head.data shouldBe a2
+
     }
 
   }

@@ -2,7 +2,6 @@ package se.gigurra.franklinheisenberg
 
 import java.io.Closeable
 
-import se.gigurra.franklin.Collection
 import se.gigurra.heisenberg.{Schema, Parsed}
 import scala.reflect.runtime.universe._
 
@@ -12,8 +11,7 @@ import scala.reflect.runtime.universe._
 trait FHStore extends Closeable {
 
   def getOrCreate[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaType <: Schema[ObjectType]](collectionName: String,
-                                                                                                    schema: SchemaType,
-                                                                                                    defaultValue: () => ObjectType): FHCollection[ObjectType, SchemaType]
+                                                                                                    schema: SchemaType): FHCollection[ObjectType, SchemaType]
 
   def close(): Unit
 
