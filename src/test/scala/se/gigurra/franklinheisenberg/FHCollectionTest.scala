@@ -32,11 +32,11 @@ class FHCollectionTest
 
   object OuterType extends Schema[OuterType] {
     val name = required[String]("name")
-    val items = required[Seq[String]]("items")
+    val partyMembers = required[Seq[String]]("partyMembers")
 
-    def apply(name: String, items: Seq[String] = Seq.empty): OuterType = marshal(
+    def apply(name: String, partyMembers: Seq[String] = Seq.empty): OuterType = marshal(
       this.name -> name,
-      this.items -> items
+      this.partyMembers -> partyMembers
     )
   }
 
@@ -44,7 +44,7 @@ class FHCollectionTest
     def schema = OuterType
 
     val name = parse(schema.name)
-    val items = parse(schema.items)
+    val partyMembers = parse(schema.partyMembers)
   }
 
   val provider: FHStore = FranklinHeisenberg.loadInMemory()
@@ -57,7 +57,7 @@ class FHCollectionTest
     collection.wipeIndices().yesImSure().await()
   }
 
-  override def afterEach(): Unit = {
+  override def afterAll(): Unit = {
     provider.close()
   }
 
@@ -73,16 +73,16 @@ class FHCollectionTest
       collection.deleteIndex(_.name)(YeahReally()).await()
       collection.fieldIndices.await() shouldBe Seq()
 
-      collection.createUniqueIndex(_.items).await()
+      collection.createUniqueIndex(_.partyMembers).await()
       collection.createUniqueIndex(_.name).await()
       collection.createUniqueIndex(OuterType.name).await()
-      collection.fieldIndices.await() shouldBe Seq(OuterType.name, OuterType.items)
+      collection.fieldIndices.await() shouldBe Seq(OuterType.name, OuterType.partyMembers)
 
       collection.indices.await().map(collection.deleteIndex(_)(YeahReally())).await()
       collection.fieldIndices.await() shouldBe Seq()
     }
 
-    "add and find some items" in {
+    "add and find some partyMembers" in {
 
       collection.createUniqueIndex(_.name).await()
 
@@ -106,11 +106,11 @@ class FHCollectionTest
       storedItems.size shouldBe 2
 
       collection.where(_.name --> "a").find.await().head.t shouldBe a1
-      collection.where(_.items --> "y").find.await().contains(Versioned(a1, 1L)) shouldBe true
-      collection.where(_.items --> "å").find.await().contains(Versioned(b1, 1L)) shouldBe true
+      collection.where(_.partyMembers --> "y").find.await().contains(Versioned(a1, 1L)) shouldBe true
+      collection.where(_.partyMembers --> "å").find.await().contains(Versioned(b1, 1L)) shouldBe true
 
-      collection.where(_.items --> "å").find.await().size shouldBe 1
-      collection.where(_.items --> "x").find.await().size shouldBe 1
+      collection.where(_.partyMembers --> "å").find.await().size shouldBe 1
+      collection.where(_.partyMembers --> "x").find.await().size shouldBe 1
     }
 
     "Update existing values" in {
