@@ -20,6 +20,10 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
     franklin.createUniqueIndex(field.name)
   }
 
+  def createUniqueIndex(field: Field[_]): Future[Unit] ={
+    franklin.createUniqueIndex(field.name)
+  }
+
   def create(entity: ObjectType): Future[Unit] = {
     franklin.create(MapProducer.produce(entity))
   }
@@ -57,9 +61,19 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
   def where(selector: SchemaType => Seq[SelectStatement]): where_impl = where(selector(schema):_*)
 
   def deleteIndex(index: String)(yeahReally: YeahReally): Future[Unit] = franklin.deleteIndex(index)(yeahReally)
+  def deleteIndex(field: Field[_])(yeahReally: YeahReally): Future[Unit] = deleteIndex(field.name)(yeahReally)
+  def deleteIndex(fGetField: SchemaType => Field[_])(yeahReally: YeahReally): Future[Unit] = deleteIndex(fGetField(schema))(yeahReally)
+
+  def indices: Future[Seq[String]] = franklin.indices
+  def fieldIndices: Future[Seq[Field[Any]]] = indices.map { allIndexNames =>
+    val fieldIndexNames = schema.fieldNames.intersect(allIndexNames.toSet).toSeq
+    fieldIndexNames.map(schema.field)
+  }
 
   def wipeItems(): ItemsWiper = franklin.wipeItems()
   def wipeIndices(): IndicesWiper = franklin.wipeIndices()
+
+
 
   private implicit val parser = schema.parser
   private def parse(items: Seq[Item]): Seq[Versioned[ObjectType]] = items.map(parse)
