@@ -12,6 +12,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
+import FHCollection._
 
 class FHCollectionTest
   extends WordSpec
@@ -105,14 +106,11 @@ class FHCollectionTest
       storedItems.size shouldBe 2
 
       collection.where(_.name --> "a").find.await().head.t shouldBe a1
-      collection.where(_.items --> Seq("y")).find.await().contains(Versioned(a1, 1L)) shouldBe true
-      collection.where(_.items --> Seq("å")).find.await().contains(Versioned(b1, 1L)) shouldBe true
+      collection.where(_.items --> "y").find.await().contains(Versioned(a1, 1L)) shouldBe true
+      collection.where(_.items --> "å").find.await().contains(Versioned(b1, 1L)) shouldBe true
 
-      collection.where(_.items --> Seq("å")).find.await().size shouldBe 1
-      collection.where(_.items --> Seq("x")).find.await().size shouldBe 1
-    }
-
-    "find some items" in {
+      collection.where(_.items --> "å").find.await().size shouldBe 1
+      collection.where(_.items --> "x").find.await().size shouldBe 1
     }
 
     "Update existing values" in {

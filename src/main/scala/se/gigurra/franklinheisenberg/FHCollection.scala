@@ -92,4 +92,16 @@ object Versioned {
 
 object FHCollection {
   type SelectStatement = (String, Any)
+
+  implicit class RichReqSeqField[T : WeakTypeTag : MapDataParser : MapDataProducer](field: FieldRequired[Seq[T]]) {
+    def -->(item: T): (String, Any) = {
+      field.name -> field.-->(Seq(item))._2.asInstanceOf[Seq[Any]].head
+    }
+  }
+
+  implicit class RichOptSeqField[T : WeakTypeTag : MapDataParser : MapDataProducer](field: FieldOption[Seq[T]]) {
+    def -->(item: T): (String, Any) = {
+      field.name -> field.-->(Seq(item))._2.asInstanceOf[Seq[Any]].head
+    }
+  }
 }
