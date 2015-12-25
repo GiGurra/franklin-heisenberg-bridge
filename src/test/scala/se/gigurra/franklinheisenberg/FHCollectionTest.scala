@@ -4,7 +4,7 @@ import java.util.UUID
 
 import org.scalatest._
 import org.scalatest.mock._
-import se.gigurra.franklin.{ItemAlreadyExists, YeahReally}
+import se.gigurra.franklin.{ItemNotFound, WrongDataVersion, ItemAlreadyExists, YeahReally}
 import se.gigurra.heisenberg.MapData.SourceData
 import se.gigurra.heisenberg.{Parsed, Schema}
 
@@ -85,6 +85,7 @@ class FHCollectionTest
     "add and find some partyMembers" in {
 
       collection.createUniqueIndex(_.name).await()
+      collection.createUniqueIndex(_.partyMembers).await()
 
       val a1 = OuterType("a", Seq("x", "y", "z"))
       val a2 = OuterType("a", Seq("X", "Y", "Z"))
@@ -113,13 +114,36 @@ class FHCollectionTest
       collection.where(_.partyMembers --> "x").find.await().size shouldBe 1
     }
 
-    "Update existing values" in {
+    "Update values" in {
+
+      collection.createUniqueIndex(_.name).await()
+
+      val a = OuterType("a", Seq("x", "y", "z"))
+      val a2 = OuterType("a", Seq("x", "y", "z", "LALALA"))
+      val b = OuterType("b", Seq("X", "Y", "Z"))
+      collection.create(a).await()
+      collection.create(b).await()
+
+      collection.where(a).update(a2, expectPrevVersion = 1L).await()
+      Try(collection.where(a).update(a2, expectPrevVersion = 1L).await()) shouldBe an[Failure[_]]
+      Try(collection.where(_.name --> "a").update(a2, expectPrevVersion = 1L).await()).failed.get shouldBe an[WrongDataVersion]
+      Try(collection.where(_.name --> "ax").update(a2).await()).failed.get shouldBe an[ItemNotFound]
+
+      collection.where().size.await() shouldBe 2
+      collection.where(_.name --> "a").find.await().head.t shouldBe a2
+
     }
 
-    "Update non-existing values" in {
-    }
+    "Append" in {
 
-    "Index on arrays / find on index elements /Append" in {
+      collection.createUniqueIndex(_.name).await()
+
+      val a = OuterType("a", Seq("bob"))
+      collection.create(a).await()
+
+      collection.where(a).append(_.partyMembers --> Seq("j", "m", "r")).await()
+      collection.where(_.name --> a.name).find.await().head.t.partyMembers should contain allOf ("j", "m", "r", "bob")
+
     }
 
     "LoadOrCreate" in {

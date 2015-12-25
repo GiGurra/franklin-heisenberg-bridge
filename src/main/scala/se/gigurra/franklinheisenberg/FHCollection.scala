@@ -39,18 +39,13 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
 
     def find: Future[Seq[Versioned[ObjectType]]] = franklin.find(selector).map(parse)
 
-    def update(entity: Versioned[ObjectType], upsert: Boolean = false): Future[Unit] = {
-      franklin.update(selector, MapProducer.produce(entity.t), upsert, entity.version)
+    def update(entity: ObjectType, upsert: Boolean = false, expectPrevVersion: Long = -1L): Future[Unit] = {
+      franklin.update(selector, MapProducer.produce(entity), upsert, expectPrevVersion)
     }
 
-    def append[T : WeakTypeTag : MapDataParser : MapDataProducer](fGetFieldData: SchemaType => Seq[(FieldRequired[Seq[T]], Seq[T])]): Future[Unit] = {
-      val data = fGetFieldData(schema).map { case (k,v) => k.-->(v).asInstanceOf[(String, Seq[Any])]}
-      franklin.append(selector, () => MapProducer.produce(defaultValue()), data)
-    }
-
-    def append[T : WeakTypeTag : MapDataParser : MapDataProducer: FixErasure1](fGetFieldData: SchemaType => Seq[(FieldOption[Seq[T]], Seq[T])]): Future[Unit] = {
-      val data = fGetFieldData(schema).map { case (k,v) => k.-->(v).asInstanceOf[(String, Seq[Any])]}
-      franklin.append(selector, () => MapProducer.produce(defaultValue()), data)
+    def append(fGetFieldData: SchemaType => (String, Any)): Future[Unit] = {
+      val data = fGetFieldData(schema).asInstanceOf[(String, Seq[Any])]
+      franklin.append(selector, () => MapProducer.produce(defaultValue()), Seq(data))
     }
 
     def delete(expectVersion: Long = -1L): Future[Unit] = franklin.deleteItem(selector, expectVersion)
@@ -58,7 +53,7 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
 
   def where_raw(selector: Map[String, Any]): where_impl = new where_impl(selector)
   def where_raw(statements: SelectStatement*): where_impl = where_raw(statements.toMap)
-  def where[T <: Parsed[T] : WeakTypeTag](query: Versioned[T]): where_impl = where_raw(query.t)
+  def where[T <: Parsed[T] : WeakTypeTag](query: T): where_impl = where_raw(query)
   def where(selectors: (SchemaType => SelectStatement)*): where_impl = {
     val statements = selectors.map(_.apply(schema))
     where_raw(statements:_*)
