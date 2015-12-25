@@ -4,7 +4,7 @@ import java.util.UUID
 
 import org.scalatest._
 import org.scalatest.mock._
-import se.gigurra.franklin.YeahReally
+import se.gigurra.franklin.{ItemAlreadyExists, YeahReally}
 import se.gigurra.heisenberg.MapData.SourceData
 import se.gigurra.heisenberg.{Parsed, Schema}
 
@@ -33,7 +33,7 @@ class FHCollectionTest
     val name = required[String]("name")
     val items = required[Seq[String]]("items")
 
-    def apply(name: String, items: Seq[String] = Seq.empty): OuterType = marshal (
+    def apply(name: String, items: Seq[String] = Seq.empty): OuterType = marshal(
       this.name -> name,
       this.items -> items
     )
@@ -41,6 +41,7 @@ class FHCollectionTest
 
   case class OuterType private(source: SourceData) extends Parsed[OuterType] {
     def schema = OuterType
+
     val name = parse(schema.name)
     val items = parse(schema.items)
   }
@@ -80,10 +81,35 @@ class FHCollectionTest
       collection.fieldIndices.await() shouldBe Seq()
     }
 
-    "have some indices" in {
-    }
+    "add and find some items" in {
 
-    "add some items" in {
+      collection.createUniqueIndex(_.name).await()
+
+      val a1 = OuterType("a", Seq("x", "y", "z"))
+      val a2 = OuterType("a", Seq("X", "Y", "Z"))
+      collection.create(a1).await()
+      val resulta2 = Try(collection.create(a2).await())
+      resulta2 shouldBe an[Failure[_]]
+      resulta2.failed.get shouldBe an[ItemAlreadyExists]
+
+      val b1 = OuterType("b", Seq("å", "ä", "ö"))
+      val b2 = OuterType("b", Seq("X", "Y", "Z"))
+      collection.create(b1).await()
+      val resultb2 = Try(collection.create(b2).await())
+      resultb2 shouldBe an[Failure[_]]
+      resultb2.failed.get shouldBe an[ItemAlreadyExists]
+
+      val storedItems: Seq[Versioned[OuterType]] = collection.where().find.await()
+      storedItems should contain(Versioned(a1, version = 1L))
+      storedItems should contain(Versioned(b1, version = 1L))
+      storedItems.size shouldBe 2
+
+      collection.where(_.name --> "a").find.await().head.t shouldBe a1
+      collection.where(_.items --> Seq("y")).find.await().contains(Versioned(a1, 1L)) shouldBe true
+      collection.where(_.items --> Seq("å")).find.await().contains(Versioned(b1, 1L)) shouldBe true
+
+      collection.where(_.items --> Seq("å")).find.await().size shouldBe 1
+      collection.where(_.items --> Seq("x")).find.await().size shouldBe 1
     }
 
     "find some items" in {

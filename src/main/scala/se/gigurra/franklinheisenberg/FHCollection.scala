@@ -1,6 +1,7 @@
 package se.gigurra.franklinheisenberg
 
 import se.gigurra.franklin._
+import se.gigurra.franklinheisenberg.FHCollection.SelectStatement
 import se.gigurra.heisenberg._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,7 +29,7 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
     franklin.create(MapProducer.produce(entity))
   }
 
-  case class where_impl(selector: Map[String, Any]) {
+  case class where_impl (selector: Map[String, Any]) {
 
     def create(): Future[Unit] = franklin.create(selector)
     def size: Future[Int] = franklin.size(selector)
@@ -55,10 +56,13 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
     def delete(expectVersion: Long = -1L): Future[Unit] = franklin.deleteItem(selector, expectVersion)
   }
 
-  def where(selector: Map[String, Any]): where_impl = new where_impl(selector)
-  def where(statements: SelectStatement*): where_impl = where(statements.toMap)
-  def where[T <: Parsed[T] : WeakTypeTag](query: Versioned[T]): where_impl = where(query.t)
-  def where(selector: SchemaType => Seq[SelectStatement]): where_impl = where(selector(schema):_*)
+  def where_raw(selector: Map[String, Any]): where_impl = new where_impl(selector)
+  def where_raw(statements: SelectStatement*): where_impl = where_raw(statements.toMap)
+  def where[T <: Parsed[T] : WeakTypeTag](query: Versioned[T]): where_impl = where_raw(query.t)
+  def where(selectors: (SchemaType => SelectStatement)*): where_impl = {
+    val statements = selectors.map(_.apply(schema))
+    where_raw(statements:_*)
+  }
 
   def deleteIndex(index: String)(yeahReally: YeahReally): Future[Unit] = franklin.deleteIndex(index)(yeahReally)
   def deleteIndex(field: Field[_])(yeahReally: YeahReally): Future[Unit] = deleteIndex(field.name)(yeahReally)
