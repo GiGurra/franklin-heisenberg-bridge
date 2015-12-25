@@ -39,7 +39,7 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
 
     def find: Future[Seq[Versioned[ObjectType]]] = franklin.find(selector).map(parse)
 
-    def update(entity: ObjectType, upsert: Boolean = false, expectPrevVersion: Long = -1L): Future[Unit] = {
+    def update(entity: ObjectType, upsert: Boolean = false, expectPrevVersion: Long): Future[Unit] = {
       franklin.update(selector, MapProducer.produce(entity), upsert, expectPrevVersion)
     }
 

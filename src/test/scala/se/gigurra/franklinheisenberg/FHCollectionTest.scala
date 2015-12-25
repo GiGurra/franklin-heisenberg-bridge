@@ -127,7 +127,8 @@ class FHCollectionTest
       collection.where(a).update(a2, expectPrevVersion = 1L).await()
       Try(collection.where(a).update(a2, expectPrevVersion = 1L).await()) shouldBe an[Failure[_]]
       Try(collection.where(_.name --> "a").update(a2, expectPrevVersion = 1L).await()).failed.get shouldBe an[WrongDataVersion]
-      Try(collection.where(_.name --> "ax").update(a2).await()).failed.get shouldBe an[ItemNotFound]
+      Try(collection.where(_.name --> "ax").update(a2, expectPrevVersion = 2L).await()).failed.get shouldBe an[ItemNotFound]
+
 
       collection.where().size.await() shouldBe 2
       collection.where(_.name --> "a").find.await().head.t shouldBe a2
