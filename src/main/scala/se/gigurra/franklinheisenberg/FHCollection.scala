@@ -61,6 +61,14 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
     where_raw(statements:_*)
   }
 
+  def find_raw(selector: Map[String, Any]): Future[Seq[Versioned[ObjectType]]] = new where_impl(selector).find
+  def find_raw(statements: SelectStatement*): Future[Seq[Versioned[ObjectType]]] = find_raw(statements.toMap)
+  def find[T <: Parsed[T] : WeakTypeTag](query: T): Future[Seq[Versioned[ObjectType]]] = find_raw(query)
+  def find(selectors: (SchemaType => SelectStatement)*): Future[Seq[Versioned[ObjectType]]] = {
+    val statements = selectors.map(_.apply(schema))
+    find_raw(statements:_*)
+  }
+
   def deleteIndex(index: String)(yeahReally: YeahReally): Future[Unit] = franklin.deleteIndex(index)(yeahReally)
   def deleteIndex(field: Field[_])(yeahReally: YeahReally): Future[Unit] = deleteIndex(field.name)(yeahReally)
   def deleteIndex(fGetField: SchemaType => Field[_])(yeahReally: YeahReally): Future[Unit] = deleteIndex(fGetField(schema))(yeahReally)
@@ -73,7 +81,6 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
 
   def wipeItems(): ItemsWiper = franklin.wipeItems()
   def wipeIndices(): IndicesWiper = franklin.wipeIndices()
-
 
 
   private implicit val parser = schema.parser
