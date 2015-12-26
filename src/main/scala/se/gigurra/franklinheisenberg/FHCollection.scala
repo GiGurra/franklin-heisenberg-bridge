@@ -32,7 +32,7 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
     def create(): Future[Unit] = franklin.create(selector)
     def size: Future[Int] = franklin.size(selector)
     def isEmpty: Future[Boolean] = franklin.isEmpty(selector)
-    def nonEmpty: Future[Boolean] = franklin.isEmpty(selector)
+    def nonEmpty: Future[Boolean] = franklin.nonEmpty(selector)
     def contains: Future[Boolean] = franklin.contains(selector)
 
     def find: Future[Seq[Versioned[ObjectType]]] = franklin.find(selector).map(parse)
