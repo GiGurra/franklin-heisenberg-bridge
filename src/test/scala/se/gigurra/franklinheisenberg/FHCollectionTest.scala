@@ -4,15 +4,15 @@ import java.util.UUID
 
 import org.scalatest._
 import org.scalatest.mock._
-import se.gigurra.franklin.{ItemNotFound, WrongDataVersion, ItemAlreadyExists, YeahReally}
+import se.gigurra.franklin.{ItemAlreadyExists, ItemNotFound, WrongDataVersion, YeahReally}
+import se.gigurra.franklinheisenberg.FHCollection._
 import se.gigurra.heisenberg.MapData.SourceData
 import se.gigurra.heisenberg.{Parsed, Schema}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success, Try}
-import scala.concurrent.ExecutionContext.Implicits.global
-import FHCollection._
+import scala.util.{Failure, Try}
 
 class FHCollectionTest
   extends WordSpec
@@ -68,14 +68,14 @@ class FHCollectionTest
     }
 
     "create and delete indices" in {
-      collection.createUniqueIndex(_.name).await()
+      collection.createIndex(_.name, unique = true).await()
       collection.fieldIndices.await() shouldBe Seq(OuterType.name)
       collection.deleteIndex(_.name)(YeahReally()).await()
       collection.fieldIndices.await() shouldBe Seq()
 
-      collection.createUniqueIndex(_.partyMembers).await()
-      collection.createUniqueIndex(_.name).await()
-      collection.createUniqueIndex(OuterType.name).await()
+      collection.createIndex(_.partyMembers, unique = true).await()
+      collection.createIndex(_.name, unique = true).await()
+      collection.createUniqueIndex(OuterType.name, unique = true).await()
       collection.fieldIndices.await() shouldBe Seq(OuterType.name, OuterType.partyMembers)
 
       collection.indices.await().map(collection.deleteIndex(_)(YeahReally())).await()
@@ -84,8 +84,8 @@ class FHCollectionTest
 
     "add and find some partyMembers" in {
 
-      collection.createUniqueIndex(_.name).await()
-      collection.createUniqueIndex(_.partyMembers).await()
+      collection.createIndex(_.name, unique = true).await()
+      collection.createIndex(_.partyMembers, unique = true).await()
 
       val a1 = OuterType("a", Seq("x", "y", "z"))
       val a2 = OuterType("a", Seq("X", "Y", "Z"))
@@ -116,7 +116,7 @@ class FHCollectionTest
 
     "Update values" in {
 
-      collection.createUniqueIndex(_.name).await()
+      collection.createIndex(_.name, unique = true).await()
 
       val a = OuterType("a", Seq("x", "y", "z"))
       val a2 = OuterType("a", Seq("x", "y", "z", "LALALA"))
@@ -137,7 +137,7 @@ class FHCollectionTest
 
     "Append" in {
 
-      collection.createUniqueIndex(_.name).await()
+      collection.createIndex(_.name, unique = true).await()
 
       val a = OuterType("a", Seq("bob"))
       val b = OuterType("b", Seq("bob"))
@@ -152,7 +152,7 @@ class FHCollectionTest
 
     "findOrCreate" in {
 
-      collection.createUniqueIndex(_.name).await()
+      collection.createIndex(_.name, unique = true).await()
 
       val a1 = OuterType("a1", Seq("1"))
       val a1b = OuterType("a1", Seq("1b"))

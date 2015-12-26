@@ -14,13 +14,13 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
 
   val tag = weakTypeTag[ObjectType]
 
-  def createUniqueIndex(fGetField: SchemaType => Field[_]): Future[Unit] ={
+  def createIndex(fGetField: SchemaType => Field[_], unique: Boolean): Future[Unit] ={
     val field = fGetField(schema)
-    franklin.createUniqueIndex(field.name)
+    franklin.createIndex(field.name, unique)
   }
 
-  def createUniqueIndex(field: Field[_]): Future[Unit] ={
-    franklin.createUniqueIndex(field.name)
+  def createUniqueIndex(field: Field[_], unique: Boolean): Future[Unit] ={
+    franklin.createIndex(field.name, unique)
   }
 
   def create(entity: ObjectType): Future[Unit] = {
