@@ -89,7 +89,13 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
   private def parse(data: Map[String, Any], version: Long): Versioned[ObjectType] = Versioned(MapParser.parse(data), version)
 }
 
-case class Versioned[T <: Parsed[T] : WeakTypeTag](data: T, version: Long)
+case class Versioned[T](data: T, version: Long) {
+  def map[T2](f: T => T2): Versioned[T2] = {
+    val newData = f(data)
+    Versioned[T2](newData, version)
+  }
+}
+
 object Versioned {
   implicit def versioned2t[T <: Parsed[T] : WeakTypeTag](vt: Versioned[T]): T = vt.data
 }
