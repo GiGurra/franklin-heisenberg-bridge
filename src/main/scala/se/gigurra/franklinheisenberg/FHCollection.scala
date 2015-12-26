@@ -19,7 +19,7 @@ case class FHCollection[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaTy
     franklin.createIndex(field.name, unique)
   }
 
-  def createUniqueIndex(field: Field[_], unique: Boolean): Future[Unit] ={
+  def createIndex(field: Field[_], unique: Boolean): Future[Unit] ={
     franklin.createIndex(field.name, unique)
   }
 

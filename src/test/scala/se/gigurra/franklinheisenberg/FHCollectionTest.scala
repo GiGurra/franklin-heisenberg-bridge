@@ -75,7 +75,7 @@ class FHCollectionTest
 
       collection.createIndex(_.partyMembers, unique = true).await()
       collection.createIndex(_.name, unique = true).await()
-      collection.createUniqueIndex(OuterType.name, unique = true).await()
+      collection.createIndex(OuterType.name, unique = true).await()
       collection.fieldIndices.await() shouldBe Seq(OuterType.name, OuterType.partyMembers)
 
       collection.indices.await().map(collection.deleteIndex(_)(YeahReally())).await()
