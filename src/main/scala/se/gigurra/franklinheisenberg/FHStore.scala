@@ -10,8 +10,8 @@ import scala.reflect.runtime.universe._
   */
 trait FHStore extends Closeable {
 
-  def getOrCreate[ObjectType <: Parsed[ObjectType] : WeakTypeTag, SchemaType <: Schema[ObjectType]](collectionName: String,
-                                                                                                    schema: SchemaType): FHCollection[ObjectType, SchemaType]
+  def getOrCreate[T <: Parsed[T] : WeakTypeTag, S <: Schema[T]](collectionName: String,
+                                                                schema: S with Schema[T]): FHCollection[T, S]
 
   def close(): Unit
 
