@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.language.implicitConversions
 import scala.reflect.runtime.universe._
 
-case class FHCollection[T <: Parsed[_] : WeakTypeTag, S <: Schema[T]](franklin: Collection, schema: S) {
+case class FHCollection[T <: Parsed[S] : WeakTypeTag, S <: Schema[T]](franklin: Collection, schema: S) {
   import FHCollection._
 
   val tag = weakTypeTag[T]
