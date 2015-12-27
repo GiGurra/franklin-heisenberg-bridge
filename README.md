@@ -26,7 +26,7 @@ val provider: FHStore = FranklinHeisenberg.loadInMemory()
 
 ### Create a collection
 
-Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/heisenberg))
+Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/heisenberg)):
 
 ```scala
 object MyType extends Schema[MyType] {
@@ -38,7 +38,11 @@ case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] 
  val foo = parse(schema.foo)
  val bar = parse(schema.bar)
 }
+```
 
+Create the collection:
+
+```scala
 val collection: FHCollection = provider.getOrCreate("test_fhcollection", MyType)
 
 ```
