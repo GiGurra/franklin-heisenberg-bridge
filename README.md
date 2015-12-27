@@ -23,3 +23,22 @@ val provider: FHStore = FranklinHeisenberg.loadInMemory()
 // FranklinHeisenberg.loadMongo(database: String = "local", nodes: Seq[String] = Seq("127.0.0.1:27017"))
 
 ```
+
+### Create a collection
+
+Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/heisenberg))
+
+```scala
+object MyType extends Schema[MyType] {
+ val foo = required[String]("a", default = "foo_default")
+ val bar = optional[Int]("b")
+}
+
+case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] {
+ val foo = parse(schema.foo)
+ val bar = parse(schema.bar)
+}
+
+val collection: FHCollection = provider.getOrCreate("test_fhcollection", MyType)
+
+```
