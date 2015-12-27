@@ -30,13 +30,13 @@ Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/hei
 
 ```scala
 object MyType extends Schema[MyType] {
- val foo = required[String]("foo", default = "foo_default")
- val bar = required[Seq[Int]]("bar", default = Seq.empty)
+ val name = required[String]("name", default = "foo_default")
+ val partyMembers = required[Seq[String]]("partyMembers", default = Seq.empty)
 }
 
 case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] {
- val foo = parse(schema.foo)
- val bar = parse(schema.bar)
+ val name = parse(schema.name)
+ val partyMembers = parse(schema.partyMembers)
 }
 ```
 
@@ -51,6 +51,6 @@ val collection: FHCollection = provider.getOrCreate("test_fhcollection", MyType)
 ### Create some indices
 
 ```scala
-val op1: Future[Unit] = collection.createIndex(_.foo, unique = true)
-val op2: Future[Unit] = collection.createIndex(_.bar, unique = false)
+val op1: Future[Unit] = collection.createIndex(_.name, unique = true)
+val op2: Future[Unit] = collection.createIndex(_.partyMembers, unique = true)
 ```
