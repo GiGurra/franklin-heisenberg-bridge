@@ -16,7 +16,7 @@ In your build.sbt:
 ```
 In your code:
 ```scala
-import se.gigurra.franklinheisenberg.FranklinHeisenberg
+import se.gigurra.franklinheisenberg._
 import se.gigurra.franklinheisenberg.FHCollection._
 
 val provider: FHStore = FranklinHeisenberg.loadInMemory()
