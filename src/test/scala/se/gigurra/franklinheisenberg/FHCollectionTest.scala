@@ -40,9 +40,7 @@ class FHCollectionTest
     )
   }
 
-  case class OuterType private(source: SourceData) extends Parsed[OuterType] {
-    def schema = OuterType
-
+  case class OuterType private(source: SourceData) extends Parsed[OuterType.type] {
     val name = parse(schema.name)
     val partyMembers = parse(schema.partyMembers)
   }
@@ -50,7 +48,7 @@ class FHCollectionTest
   val provider: FHStore = FranklinHeisenberg.loadInMemory()
   //val provider: FHStore = FranklinHeisenberg.loadMongo()
 
-  val collection = provider.getOrCreate[OuterType, OuterType.type]("test_fhcollection", OuterType)
+  val collection = provider.getOrCreate("test_fhcollection", OuterType)
 
   override def beforeEach(): Unit = {
     collection.wipeItems().yesImSure().await()

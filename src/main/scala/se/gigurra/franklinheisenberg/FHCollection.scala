@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.language.implicitConversions
 import scala.reflect.runtime.universe._
 
-case class FHCollection[T <: Parsed[T] : WeakTypeTag, S <: Schema[T]](franklin: Collection, schema: S) {
+case class FHCollection[T <: Parsed[_] : WeakTypeTag, S <: Schema[T]](franklin: Collection, schema: S) {
   import FHCollection._
 
   val tag = weakTypeTag[T]
@@ -54,7 +54,7 @@ case class FHCollection[T <: Parsed[T] : WeakTypeTag, S <: Schema[T]](franklin: 
 
   def where_raw(selector: Map[String, Any]): where_impl = new where_impl(selector)
   def where_raw(statements: SelectStatement*): where_impl = where_raw(statements.toMap)
-  def where[T2 <: Parsed[T2] : WeakTypeTag](query: T2): where_impl = where_raw(query)
+  def where[T2 <: Parsed[_] : WeakTypeTag](query: T2): where_impl = where_raw(query)
   def where(selectors: (S => SelectStatement)*): where_impl = {
     val statements = selectors.map(_.apply(schema))
     where_raw(statements:_*)
@@ -62,7 +62,7 @@ case class FHCollection[T <: Parsed[T] : WeakTypeTag, S <: Schema[T]](franklin: 
 
   def find_raw(selector: Map[String, Any]): Future[Seq[Versioned[T]]] = new where_impl(selector).find
   def find_raw(statements: SelectStatement*): Future[Seq[Versioned[T]]] = find_raw(statements.toMap)
-  def find[T2 <: Parsed[T2] : WeakTypeTag](query: T2): Future[Seq[Versioned[T]]] = find_raw(query)
+  def find[T2 <: Parsed[_] : WeakTypeTag](query: T2): Future[Seq[Versioned[T]]] = find_raw(query)
   def find(selectors: (S => SelectStatement)*): Future[Seq[Versioned[T]]] = {
     val statements = selectors.map(_.apply(schema))
     find_raw(statements:_*)
@@ -96,7 +96,7 @@ case class Versioned[T](data: T, version: Long) {
 }
 
 object Versioned {
-  implicit def versioned2t[T <: Parsed[T] : WeakTypeTag](vt: Versioned[T]): T = vt.data
+  implicit def versioned2t[T <: Parsed[_] : WeakTypeTag](vt: Versioned[T]): T = vt.data
 }
 
 object FHCollection {
