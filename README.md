@@ -54,3 +54,38 @@ val collection: FHCollection[MyType, MyType.type] = provider.getOrCreate("test_f
 val op1: Future[Unit] = collection.createIndex(_.name, unique = true)
 val op2: Future[Unit] = collection.createIndex(_.partyMembers, unique = true)
 ```
+
+
+### Store and load some data
+
+```scala
+collection.createIndex(_.name, unique = true).await()
+collection.createIndex(_.partyMembers, unique = true).await()
+
+val a1 = OuterType("a", Seq("x", "y", "z"))
+val a2 = OuterType("a", Seq("X", "Y", "Z"))
+collection.create(a1).await()
+val resulta2 = Try(collection.create(a2).await())
+resulta2 shouldBe an[Failure[_]]
+resulta2.failed.get shouldBe an[ItemAlreadyExists]
+
+val b1 = OuterType("b", Seq("å", "ä", "ö"))
+val b2 = OuterType("b", Seq("X", "Y", "Z"))
+collection.create(b1).await()
+val resultb2 = Try(collection.create(b2).await())
+resultb2 shouldBe an[Failure[_]]
+resultb2.failed.get shouldBe an[ItemAlreadyExists]
+
+val storedItems: Seq[Versioned[OuterType]] = collection.where().find.await()
+storedItems should contain(Versioned(a1, version = 1L))
+storedItems should contain(Versioned(b1, version = 1L))
+storedItems.size shouldBe 2
+
+collection.where(_.name --> "a").find.await().head.data shouldBe a1
+collection.where(_.partyMembers --> "y").find.await().contains(Versioned(a1, 1L)) shouldBe true
+collection.where(_.partyMembers --> "å").find.await().contains(Versioned(b1, 1L)) shouldBe true
+
+collection.where(_.partyMembers --> "å").find.await().size shouldBe 1
+collection.where(_.partyMembers --> "x").find.await().size shouldBe 1
+
+```
