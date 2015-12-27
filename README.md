@@ -43,7 +43,7 @@ case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] 
 Create the collection:
 
 ```scala
-val collection: FHCollection = provider.getOrCreate("test_fhcollection", MyType)
+val collection: FHCollection[MyType, MyType.type] = provider.getOrCreate("test_fhcollection", MyType)
 
 ```
 
