@@ -30,8 +30,8 @@ Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/hei
 
 ```scala
 object MyType extends Schema[MyType] {
- val foo = required[String]("a", default = "foo_default")
- val bar = required[Seq[Int]]("b", default = Seq.empty)
+ val foo = required[String]("foo", default = "foo_default")
+ val bar = required[Seq[Int]]("bar", default = Seq.empty)
 }
 
 case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] {
