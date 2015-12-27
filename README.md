@@ -33,7 +33,7 @@ object MyType extends Schema[MyType] {
  val name = required[String]("name", default = "foo_default")
  val partyMembers = required[Seq[String]]("partyMembers", default = Seq.empty)
  
- def apply(name: String, partyMembers: Seq[String] = Seq.empty): OuterType = marshal(
+ def apply(name: String, partyMembers: Seq[String] = Seq.empty) = marshal(
   this.name -> name,
   this.partyMembers -> partyMembers
  )
