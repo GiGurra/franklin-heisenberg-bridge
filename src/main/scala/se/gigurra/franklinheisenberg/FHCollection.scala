@@ -113,4 +113,16 @@ object FHCollection {
       field.name -> field.-->(Seq(item))._2.asInstanceOf[Seq[Any]].head
     }
   }
+
+  implicit class RichReqSetField[T : WeakTypeTag : MapDataParser : MapDataProducer](field: FieldRequired[Set[T]]) {
+    def -->(item: T): (String, Any) = {
+      field.name -> field.-->(Set(item))._2.asInstanceOf[Set[Any]].head
+    }
+  }
+
+  implicit class RichOptSetField[T : WeakTypeTag : MapDataParser : MapDataProducer](field: FieldOption[Set[T]]) {
+    def -->(item: T): (String, Any) = {
+      field.name -> field.-->(Set(item))._2.asInstanceOf[Set[Any]].head
+    }
+  }
 }
