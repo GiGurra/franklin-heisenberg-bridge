@@ -31,7 +31,7 @@ Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/hei
 ```scala
 object MyType extends Schema[MyType] {
  val foo = required[String]("a", default = "foo_default")
- val bar = optional[Int]("b")
+ val bar = required[Seq[Int]]("b", default = Seq.empty)
 }
 
 case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] {
@@ -45,4 +45,12 @@ Create the collection:
 ```scala
 val collection: FHCollection = provider.getOrCreate("test_fhcollection", MyType)
 
+```
+
+
+### Create some indices
+
+```scala
+collection.createIndex(_.foo, unique = true)
+collection.createIndex(_.bar, unique = false)
 ```
