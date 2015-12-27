@@ -51,6 +51,6 @@ val collection: FHCollection = provider.getOrCreate("test_fhcollection", MyType)
 ### Create some indices
 
 ```scala
-collection.createIndex(_.foo, unique = true)
-collection.createIndex(_.bar, unique = false)
+val op1: Future[Unit] = collection.createIndex(_.foo, unique = true)
+val op2: Future[Unit] = collection.createIndex(_.bar, unique = false)
 ```
