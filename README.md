@@ -6,7 +6,7 @@ Connecting [Franklin](https://github.com/GiGurra/franklin) with [Heisenberg](htt
 
 Franklin-Heisenberg-bridge provides a Heisenberg typed interface to Franklin storage, easy - right? :).
 
-## Examples
+## 
 
 ### What you need
 
