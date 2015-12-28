@@ -103,7 +103,7 @@ def makeMyNameLonger(myPreviousName: String): .. = {
    // Check that I actually exist. Below binds a Versioned[MyType] -> c
    c <- collection.where(_.name --> myPreviousName).findOne.map(_.getOrElse(..))
    // Update my name
-   _ <- collection.where(c).update(c.withNewName(myPreviousName), expectVersion = c.version)
+   _ <- collection.where(c).update(c.withNewName(myPreviousName+"longer!"), expectVersion = c.version)
  } yield {
   Http.Response(Ok, "I did my job!")
  }
