@@ -2,7 +2,7 @@
 Connecting [Franklin](https://github.com/GiGurra/franklin) with [Heisenberg](https://github.com/GiGurra/heisenberg)..
 
 * Franklin handles dynamic data storage and retrieval
-* Heisenberg handles dynamic data interpretation/mapping.
+* Heisenberg handles dynamic<->static data interpretation/mapping.
 
 Franklin-Heisenberg-bridge provides a Heisenberg typed interface to Franklin storage, easy - right? :).
 
