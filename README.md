@@ -100,8 +100,8 @@ Let's make that a bit more workable
 ```scala
 def makeMyNameLonger(myPreviousName: String): .. = {
  for {
-   // Check that I actually exist :S
-   c: Versioned[MyType] <- collection.where(_.name --> "dude").findOne.map(_.getOrElse(..))
+   // Check that I actually exist. Below binds a Versioned[MyType] -> c
+   c <- collection.where(_.name --> "dude").findOne.map(_.getOrElse(..))
    // Update my name
    _ <- collection.where(c).update(c.withNewName(myPreviousName), expectVersion = c.version)
  } yield {
