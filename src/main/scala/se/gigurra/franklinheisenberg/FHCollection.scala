@@ -73,10 +73,6 @@ case class FHCollection[T <: Parsed[S] : WeakTypeTag, S <: Schema[T]](franklin: 
   def deleteIndex(fGetField: S => Field[_])(yeahReally: YeahReally): Future[Unit] = deleteIndex(fGetField(schema))(yeahReally)
 
   def indices: Future[Seq[String]] = franklin.indices
-  def fieldIndices: Future[Seq[Field[Any]]] = indices.map { allIndexNames =>
-    val fieldIndexNames = schema.fieldNames.intersect(allIndexNames.toSet).toSeq
-    fieldIndexNames.map(schema.field)
-  }
 
   def wipeItems(): ItemsWiper = franklin.wipeItems()
   def wipeIndices(): IndicesWiper = franklin.wipeIndices()

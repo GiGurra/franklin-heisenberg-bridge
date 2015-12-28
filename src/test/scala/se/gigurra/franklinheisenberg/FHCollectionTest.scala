@@ -67,17 +67,17 @@ class FHCollectionTest
 
     "create and delete indices" in {
       collection.createIndex(_.name, unique = true).await()
-      collection.fieldIndices.await() shouldBe Seq(OuterType.name)
+      collection.indices.await().toSet shouldBe Set(OuterType.name.name)
       collection.deleteIndex(_.name)(YeahReally()).await()
-      collection.fieldIndices.await() shouldBe Seq()
+      collection.indices.await() shouldBe Seq()
 
       collection.createIndex(_.partyMembers, unique = true).await()
       collection.createIndex(_.name, unique = true).await()
       collection.createIndex(OuterType.name, unique = true).await()
-      collection.fieldIndices.await() shouldBe Seq(OuterType.name, OuterType.partyMembers)
+      collection.indices.await().toSet shouldBe Set(OuterType.name.name, OuterType.partyMembers.name)
 
       collection.indices.await().map(collection.deleteIndex(_)(YeahReally())).await()
-      collection.fieldIndices.await() shouldBe Seq()
+      collection.indices.await() shouldBe Seq()
     }
 
     "add and find some partyMembers" in {
