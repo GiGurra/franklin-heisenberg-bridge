@@ -26,29 +26,20 @@ val provider: FHStore = FranklinHeisenberg.loadInMemory()
 
 ### Create a collection
 
-Based on Heisenberg type MyType (see [heisenberg](https://github.com/GiGurra/heisenberg)):
+Note: Make sure you understand what heisenberg is first (see [heisenberg](https://github.com/GiGurra/heisenberg)):
 
 ```scala
-object MyType extends Schema[MyType] {
- val name = required[String]("name", default = "foo_default")
- val partyMembers = required[Seq[String]]("partyMembers", default = Seq.empty)
- 
- def apply(name: String, partyMembers: Seq[String] = Seq.empty) = marshal(
-  this.name -> name,
-  this.partyMembers -> partyMembers
- )
+
+// Defined earlier
+case class MyHeisenbergType... 
+object MyHeisenbergType extends Schema[MyHeisenbergType] {
+ val name = required[String](..)
+ val members = required[Seq[String]](..)
+ ..
 }
 
-case class MyType private(source: Map[String, Any]) extends Parsed[MyType.type] {
- val name = parse(schema.name)
- val partyMembers = parse(schema.partyMembers)
-}
-```
-
-Create the collection:
-
-```scala
-val collection: FHCollection[MyType, MyType.type] = provider.getOrCreate("test_fhcollection", MyType)
+// A FHCollection[MyHeisenbergType, MyHeisenbergType.type]
+val collection = provider.getOrCreate("test_collection", MyHeisenbergType)
 
 ```
 
@@ -57,7 +48,7 @@ val collection: FHCollection[MyType, MyType.type] = provider.getOrCreate("test_f
 
 ```scala
 val op1: Future[Unit] = collection.createIndex(_.name, unique = true)
-val op2: Future[Unit] = collection.createIndex(_.partyMembers, unique = true)
+val op2: Future[Unit] = collection.createIndex(_.members, unique = true)
 ```
 
 
@@ -65,32 +56,22 @@ val op2: Future[Unit] = collection.createIndex(_.partyMembers, unique = true)
 
 ```scala
 collection.createIndex(_.name, unique = true).await()
-collection.createIndex(_.partyMembers, unique = true).await()
+collection.createIndex(_.members, unique = true).await()
 
-val a1 = MyType("a", Seq("x", "y", "z"))
-val a2 = MyType("a", Seq("X", "Y", "Z"))
-collection.create(a1).await()
-val resulta2 = Try(collection.create(a2).await())
-resulta2 shouldBe an[Failure[_]]
-resulta2.failed.get shouldBe an[ItemAlreadyExists]
+val a: MyHeisenbergType = ..
+val b: MyHeisenbergType = ..
 
-val b1 = MyType("b", Seq("å", "ä", "ö"))
-val b2 = MyType("b", Seq("X", "Y", "Z"))
-collection.create(b1).await()
-val resultb2 = Try(collection.create(b2).await())
-resultb2 shouldBe an[Failure[_]]
-resultb2.failed.get shouldBe an[ItemAlreadyExists]
+val op1: Future[Unit] = collection.create(a)
+val op2: Future[Unit] = collection.create(b)
 
-val storedItems: Seq[Versioned[MyType]] = collection.where().find.await()
-storedItems should contain(Versioned(a1, version = 1L))
-storedItems should contain(Versioned(b1, version = 1L))
-storedItems.size shouldBe 2
+// await..
 
-collection.where(_.name --> "a").find.await().head.data shouldBe a1
-collection.where(_.partyMembers --> "y").find.await().contains(Versioned(a1, 1L)) shouldBe true
-collection.where(_.partyMembers --> "å").find.await().contains(Versioned(b1, 1L)) shouldBe true
+// Find on .name member
+val aBack: Future[Option[Versioned[MyHeisenbergType]]] = collection.where(_.name --> a.name).findOne
+val bBack: Future[Option[Versioned[MyHeisenbergType]]] = collection.where(b).findOne
+val allItems: Future[Seq[Versioned[MyHeisenbergType]]] = collection.where().findAll
 
-collection.where(_.partyMembers --> "å").find.await().size shouldBe 1
-collection.where(_.partyMembers --> "x").find.await().size shouldBe 1
+// Find all MyHeisenbergType objects with "Bob" in their .members
+val foo = collection.where(_.members --> "Bob").find
 
 ```
