@@ -110,3 +110,32 @@ def makeMyNameLonger(myPreviousName: String): .. = {
 }
 
 ```
+
+
+### A more advanced example
+
+Below is code taken from he valhalla-game project. It handles people leaving a party
+
+
+```scala
+private def leaveParty(self: SelfInParty, leave: LeaveCurrentParty): Future[Response] = {
+
+  val party = self.party.map(_.leave(self.charName))
+
+  for {
+    _ <- emit.toParty(LeftParty(self.charName), self.party)
+    _ <- if (party.isDisbanded) {
+      for {
+        _ <- parties.where(_.id --> party.id).delete(expectVersion = party.version)
+        _ <- emit.toParty(PartyDisbanded(), self.party)
+      } yield ()
+    } else {
+      parties.where(_.id --> party.id).update(party, expectVersion = party.version)
+    }
+  } yield {
+    Responses.ok(s"You left the party :/")
+  }
+
+}
+
+```
