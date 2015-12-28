@@ -60,7 +60,7 @@ val op_i2: Future[Unit] = collection.createIndex(_.items, unique = true)
 val a: MyHeisenbergType = ..
 val b: MyHeisenbergType = ..
 
-// We call .create just like in [franklin]
+// We call .create just like in franklin, except that now we have static typing!
 val op1: Future[Unit] = collection.create(a)
 val op2: Future[Unit] = collection.create(b)
 
