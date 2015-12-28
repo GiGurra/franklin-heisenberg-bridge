@@ -74,4 +74,39 @@ val allItems: Future[Seq[Versioned[MyHeisenbergType]]] = collection.where().find
 // Find all MyHeisenbergType objects with "Bob" in their .items field
 val foo = collection.where(_.items --> "Bob").find
 
+// Future[Option[Versioned[MyType..]]] - Wow thats a lot of wrappers!!!
+// 
+
+```
+
+### What's this Versioned[..] thing?
+
+* Make sure you understand Franklin's versioning.
+* Versioned[T] is just a wrapper for any type T with a version number:
+
+```scala
+case class Versioned[T](data: T, version: Long)
+
+// which also works as a decorator with implicit Versioned[T] => T conversion
+```
+
+
+### That's a lot of wrappers
+
+* Future[Option[Versioned[MyType..]]]  :(
+
+Let's make that a bit more workable
+
+```scala
+def makeMyNameLonger(myPreviousName: String): .. = {
+ for {
+   // Check that I actually exist :S
+   c: Versioned[MyType] <- collection.where(_.name --> "dude").findOne.map(_.getOrElse(..))
+   // Update my name
+   _ <- collection.where(c).update(c.withNewName(myPreviousName), expectVersion = c.version)
+ } yield {
+  Http.Response(Ok, "I did my job!")
+ }
+}
+
 ```
