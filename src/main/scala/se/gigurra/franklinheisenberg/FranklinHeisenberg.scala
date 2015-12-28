@@ -1,5 +1,6 @@
 package se.gigurra.franklinheisenberg
 
+import se.gigurra.franklin.mongoimpl.{DefaultBsonCodec, BsonCodec}
 import se.gigurra.franklin.{Franklin, Store}
 import se.gigurra.heisenberg.{Parsed, Schema}
 
@@ -22,8 +23,8 @@ object FranklinHeisenberg {
 
   }
 
-  def loadMongo(database: String = "local", nodes: Seq[String] = Seq("127.0.0.1:27017")): FHStore = {
-    buildStore(Franklin.loadMongo(database, nodes))
+  def loadMongo(database: String = "local", nodes: Seq[String] = Seq("127.0.0.1:27017"), codec: BsonCodec = DefaultBsonCodec): FHStore = {
+    buildStore(Franklin.loadMongo(database, nodes, codec))
   }
 
   def loadInMemory(): FHStore = {
