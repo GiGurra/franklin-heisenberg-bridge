@@ -26,41 +26,39 @@ val provider: FHStore = FranklinHeisenberg.loadInMemory()
 
 ### Create a collection
 
-Note: Make sure you understand what heisenberg is first (see [heisenberg](https://github.com/GiGurra/heisenberg)):
+Note: Make sure you understand what [Franklin](https://github.com/GiGurra/franklin) and [Heisenberg](https://github.com/GiGurra/heisenberg) are first!
 
 ```scala
 
-// Defined earlier
+// Given some Heisenberg type
 case class MyHeisenbergType... 
-object MyHeisenbergType extends Schema[MyHeisenbergType] {
- val name = required[String](..)
- val members = required[Seq[String]](..)
- ..
-}
+object MyHeisenbergType extends Schema[MyHeisenbergType] ..
 
-// A FHCollection[MyHeisenbergType, MyHeisenbergType.type]
+// We can create a collection of type FHCollection[MyHeisenbergType, MyHeisenbergType.type]
 val collection = provider.getOrCreate("test_collection", MyHeisenbergType)
 
 ```
 
 
-### Create some indices
+### Create some indices + store & load some objects
 
 ```scala
-val op1: Future[Unit] = collection.createIndex(_.name, unique = true)
-val op2: Future[Unit] = collection.createIndex(_.members, unique = true)
-```
 
+// Suppose we have a Schema that looks something like this:
+object MyHeisenbergType extends Schema[MyHeisenbergType] {
+ val name = required[String](..)
+ val items = required[Seq[String]](..)
+}
 
-### Store and load some data
-
-```scala
+// We can create the indices directly on fields
 collection.createIndex(_.name, unique = true).await()
-collection.createIndex(_.members, unique = true).await()
+collection.createIndex(_.items, unique = true).await()
 
+// Suppose now we have some objects we want to store
 val a: MyHeisenbergType = ..
 val b: MyHeisenbergType = ..
 
+// We call .create just like in [franklin]
 val op1: Future[Unit] = collection.create(a)
 val op2: Future[Unit] = collection.create(b)
 
@@ -71,7 +69,7 @@ val aBack: Future[Option[Versioned[MyHeisenbergType]]] = collection.where(_.name
 val bBack: Future[Option[Versioned[MyHeisenbergType]]] = collection.where(b).findOne
 val allItems: Future[Seq[Versioned[MyHeisenbergType]]] = collection.where().findAll
 
-// Find all MyHeisenbergType objects with "Bob" in their .members
-val foo = collection.where(_.members --> "Bob").find
+// Find all MyHeisenbergType objects with "Bob" in their .items field
+val foo = collection.where(_.items --> "Bob").find
 
 ```
