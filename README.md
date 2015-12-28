@@ -51,8 +51,10 @@ object MyHeisenbergType extends Schema[MyHeisenbergType] {
 }
 
 // We can create the indices directly on fields
-collection.createIndex(_.name, unique = true).await()
-collection.createIndex(_.items, unique = true).await()
+val op_i1: Future[Unit] = collection.createIndex(_.name, unique = true)
+val op_i2: Future[Unit] = collection.createIndex(_.items, unique = true)
+
+// await..
 
 // Suppose now we have some objects we want to store
 val a: MyHeisenbergType = ..
