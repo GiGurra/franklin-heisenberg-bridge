@@ -12,7 +12,7 @@ Franklin-Heisenberg-bridge provides a Heisenberg typed interface to Franklin sto
 
 In your build.sbt:
 ```sbt
-.dependsOn(uri("git://github.com/GiGurra/franklin-heisenberg-bridge.git#0.1.10"))
+.dependsOn(uri("git://github.com/GiGurra/franklin-heisenberg-bridge.git#0.1.11"))
 ```
 In your code:
 ```scala
@@ -20,7 +20,7 @@ import se.gigurra.franklinheisenberg._
 import se.gigurra.franklinheisenberg.FHCollection._
 
 val provider: FHStore = FranklinHeisenberg.loadInMemory()
-// FranklinHeisenberg.loadMongo(database: String = "local", nodes: Seq[String] = Seq("127.0.0.1:27017"))
+// FranklinHeisenberg.loadMongo(database: String = "local", nodes: Seq[String] = Seq("127.0.0.1:27017"), codec: BsonCodec = DefaultBsonCodec)
 
 ```
 
