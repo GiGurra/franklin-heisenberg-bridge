@@ -111,3 +111,8 @@ def makeMyNameLonger(myPreviousName: String): .. = {
 
 ```
 
+
+### For more examples ..
+
+Have a look at [the (incomplete) tests](https://github.com/GiGurra/franklin-heisenberg-bridge/blob/master/src/test/scala/se/gigurra/franklinheisenberg/FHCollectionTest.scala)
+
