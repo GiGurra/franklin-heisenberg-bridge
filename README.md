@@ -12,7 +12,7 @@ Franklin-Heisenberg-bridge provides a Heisenberg typed interface to Franklin sto
 
 In your build.sbt:
 ```sbt
-.dependsOn(uri("https://github.com/GiGurra/franklin-heisenberg-bridge.git#0.1.17"))
+.dependsOn(uri("git://github.com/GiGurra/franklin-heisenberg-bridge.git#0.1.18"))
 ```
 In your code:
 ```scala
