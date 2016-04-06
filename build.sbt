@@ -12,8 +12,8 @@ val franklin_heisenberg_bridge = Project(id = "franklin-heisenberg-bridge", base
 
     resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/"
   )
-  .dependsOn(uri("git://github.com/GiGurra/franklin.git#0.1.10"))
-  .dependsOn(uri("git://github.com/GiGurra/heisenberg.git#0.2.6"))
+  .dependsOn(uri("https://github.com/GiGurra/franklin.git#0.1.10"))
+  .dependsOn(uri("https://github.com/GiGurra/heisenberg.git#0.2.6"))
 
 def getVersion: String = {
 
