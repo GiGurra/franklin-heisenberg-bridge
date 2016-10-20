@@ -1,7 +1,7 @@
-package se.gigurra.franklinheisenberg
+package com.github.gigurra.franklinheisenberg
 
-import se.gigurra.franklin._
-import se.gigurra.heisenberg._
+import com.github.gigurra.franklin._
+import com.github.gigurra.heisenberg._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

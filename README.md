@@ -12,12 +12,12 @@ Franklin-Heisenberg-bridge provides a Heisenberg typed interface to Franklin sto
 
 In your build.sbt:
 ```sbt
-.dependsOn(uri("git://github.com/GiGurra/franklin-heisenberg-bridge.git#0.1.19"))
+libraryDependencies += "com.github.gigurra" %% "franklin-heisenberg-bridge" % "0.1.20"
 ```
 In your code:
 ```scala
-import se.gigurra.franklinheisenberg._
-import se.gigurra.franklinheisenberg.FHCollection._
+import com.github.gigurra.franklinheisenberg._
+import com.github.gigurra.franklinheisenberg.FHCollection._
 
 val provider: FHStore = FranklinHeisenberg.loadInMemory()
 // FranklinHeisenberg.loadMongo(database: String = "local", nodes: Seq[String] = Seq("127.0.0.1:27017"), codec: BsonCodec = DefaultBsonCodec)
