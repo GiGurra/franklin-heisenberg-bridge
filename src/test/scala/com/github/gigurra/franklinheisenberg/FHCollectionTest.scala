@@ -1,13 +1,13 @@
-package se.gigurra.franklinheisenberg
+package com.github.gigurra.franklinheisenberg
 
 import java.util.UUID
 
 import org.scalatest._
 import org.scalatest.mock._
-import se.gigurra.franklin.{ItemAlreadyExists, ItemNotFound, WrongDataVersion, YeahReally}
-import se.gigurra.franklinheisenberg.FHCollection._
-import se.gigurra.heisenberg.MapData.SourceData
-import se.gigurra.heisenberg.{Parsed, Schema}
+import com.github.gigurra.franklin.{ItemAlreadyExists, ItemNotFound, WrongDataVersion, YeahReally}
+import com.github.gigurra.franklinheisenberg.FHCollection._
+import com.github.gigurra.heisenberg.MapData.SourceData
+import com.github.gigurra.heisenberg.{Parsed, Schema}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

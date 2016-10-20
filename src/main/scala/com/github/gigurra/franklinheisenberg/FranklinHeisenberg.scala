@@ -1,8 +1,8 @@
-package se.gigurra.franklinheisenberg
+package com.github.gigurra.franklinheisenberg
 
-import se.gigurra.franklin.mongoimpl.{DefaultBsonCodec, BsonCodec}
-import se.gigurra.franklin.{Franklin, Store}
-import se.gigurra.heisenberg.{Parsed, Schema}
+import com.github.gigurra.franklin.mongoimpl.{DefaultBsonCodec, BsonCodec}
+import com.github.gigurra.franklin.{Franklin, Store}
+import com.github.gigurra.heisenberg.{Parsed, Schema}
 
 import scala.reflect.runtime.universe._
 

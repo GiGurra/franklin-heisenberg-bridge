@@ -1,8 +1,8 @@
-package se.gigurra.franklinheisenberg
+package com.github.gigurra.franklinheisenberg
 
 import java.io.Closeable
 
-import se.gigurra.heisenberg.{Schema, Parsed}
+import com.github.gigurra.heisenberg.{Schema, Parsed}
 import scala.reflect.runtime.universe._
 
 /**
